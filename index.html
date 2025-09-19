@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TEPIHA — HOME (Locked, Static V9)</title>
+<style>
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { margin:0; padding:0; background:#0b1220; color:#fff; font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial; }
+h1,h2,h3,h4,h5,h6,button { text-transform: uppercase; }
+a { color: inherit; text-decoration: none; }
+.container { max-width: 1120px; margin: 0 auto; padding: 12px 20px; }
+.header { display:flex; align-items:center; justify-content:center; flex-direction:column; gap:6px; margin-bottom:12px; }
+.title { font-size:22px; font-weight:900; text-align:center; }
+.subtitle { font-size:13px; color:#9fb6ff; text-align:center; }
+
+.top-buttons { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:10px; }
+.btn { display:flex; align-items:center; justify-content:center; text-align:center; border-radius:10px; padding:10px 12px; font-weight:800; border:1px solid rgba(255,255,255,0.08); background:#0f2740; min-height:40px; font-size:0.8em; }
+.btn:hover { outline:2px solid #ffffff22; }
+
+/* ARKA button (smaller, top-right corner fixed) */
+.arka { position: fixed; top:12px; right:12px; display:flex; align-items:center; gap:6px; background:#1b2a12; color:#eaffd5; border:1px solid rgba(255,255,255,0.1); border-radius:999px; padding:6px 10px; font-weight:900; font-size:0.75em; z-index:100; }
+.arka .euro { width:20px; height:20px; border-radius:999px; display:flex; align-items:center; justify-content:center; background:#eaffd5; color:#1b2a12; font-weight:900; font-size:0.8em; }
+.arka:hover { outline:2px solid #ffffff22; }
+
+.notice { background:#071022; border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px; margin-top:14px; text-align:left; font-size:0.9em; }
+
+.section { margin-top:14px; }
+.search-wrap { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+.input { flex:1; min-width: 180px; background:#0b152a; border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:10px; color:#fff; font-size:0.9em; }
+
+/* Bigger buttons (SHTO KLIENT, KLIENT TRANSPORTI) */
+.chip-big { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.14); background:#0f1e3d; font-weight:900; cursor:pointer; font-size:1em; margin-top:10px; }
+.chip-big span.plus { display:inline-flex; width:22px; height:22px; border-radius:999px; align-items:center; justify-content:center; background:#ffb86b; color:#1a1200; font-weight:900; }
+.chip-big span.icon { font-size:1.2em; }
+
+.transport-box { background:#071022; border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px; margin-top:12px; text-align:left; font-size:0.9em; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="title">KOMPANIA JONI</div>
+      <div class="subtitle">PËR PASTRIMIN E TEPIHAVE</div>
+      <div class="top-buttons">
+        <a class="btn" href="/pranim">PRANIMI</a>
+        <a class="btn" href="/pastrim">PASTRIMI</a>
+        <a class="btn" href="/gati">GATI</a>
+        <a class="btn" href="/transport">TRANSPORTI</a>
+        <a class="btn" href="/marrje-sot">MARRJE SOT</a>
+      </div>
+    </div>
+
+    <!-- QuickChip për klientë -->
+    <div class="section notice">
+      <div style="font-weight:900; margin-bottom:6px;">KLIENTË — SHTO & KËRKO SHPEJT</div>
+      <div class="chip-big" onclick="location.href='/pranim'"><span class="plus">+</span> SHTO KLIENT TË RI</div>
+      <div class="search-wrap">
+        <input class="input" id="search-klient" placeholder="KËRKO KLIENTIN (EMËR / TELEFON)">
+        <button class="btn" onclick="location.href='/pranim'">KËRKO</button>
+      </div>
+    </div>
+
+    <!-- Transport -->
+    <div class="section notice">
+      <div style="font-weight:900; margin-bottom:6px;">TRANSPORT — KËRKO</div>
+      <div class="chip-big" onclick="location.href='/transport'"><span class="icon">🚚</span> KLIENT TRANSPORTI</div>
+      <div class="search-wrap">
+        <input class="input" id="search-transport" placeholder="KËRKO KLIENT TRANSPORTI (EMËR / TEL)">
+        <button class="btn" onclick="location.href='/transport'">KËRKO</button>
+      </div>
+    </div>
+
+    <div id="soon" class="notice" style="display:none;"></div>
+  </div>
+
+  <a class="arka" href="/arka">
+    <div class="euro">€</div>
+    <div>ARKA</div>
+  </a>
+
+<!-- Auto-wired navigation (doesn't change design) -->
+<script>
+(function(){
+  const routes = {
+    "PRANIMI": "pranim.html",
+    "PASTRIMI": "pastrim.html",
+    "GATI": "gati.html",
+    "TRANSPORTI": "transporti.html",
+    "MARRJE SOT": "marrje-sot.html",
+    "ARKA": "arka.html"
+  };
+
+  // Helper: normalize text
+  function norm(t){ return (t||"").replace(/\s+/g,' ').trim().toUpperCase(); }
+
+  // First, try obvious anchors/buttons
+  const candidates = Array.from(document.querySelectorAll('a, button, [role="button"], .btn, .chip, .tile, .nav a'));
+  // Add a gentle fallback: scan any element with text content <= 20 chars (likely labels)
+  const all = Array.from(document.querySelectorAll('body *')).filter(el => {
+    const t = norm(el.textContent);
+    return routes[t] && el.children.length === 0 && t.length <= 20;
+  });
+  const elems = Array.from(new Set([...candidates, ...all]));
+
+  elems.forEach(el => {
+    const t = norm(el.textContent);
+    const target = routes[t];
+    if (!target) return;
+
+    // If it's already a normal link, don't overwrite a real href
+    if (el.tagName === 'A') {
+      const href = el.getAttribute('href') || '';
+      if (!href || href === '#' || href === '/' || href.startsWith('javascript:')) {
+        el.setAttribute('href', target);
+      } else {
+        // already pointing somewhere specific; leave it alone
+      }
+      return;
+    }
+
+    // Make non-anchor elements act like links
+    el.style.cursor = 'pointer';
+    el.setAttribute('tabindex', '0');
+    el.setAttribute('role', el.getAttribute('role') || 'button');
+    el.addEventListener('click', () => { window.location.href = target; });
+    el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.location.href = target; } });
+  });
+})();
+</script>
+
+</body>
+</html>
